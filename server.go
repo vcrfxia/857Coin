@@ -1,3 +1,7 @@
+// questions:
+// why is the triple (start, end, length) instead of (preimage(end), end)
+// how many processes, how big distinguished points?
+
 package main
 
 import (
@@ -8,13 +12,14 @@ import (
 
 type triplet struct{
 	//TODO: fill this out 
+	// start location, end location, number of steps (all ints)
 }
 
 type server struct{
 	peers []chan triplet
 	me int 
 	num_processors int 
-	stored_triplets []triplet
+	stored_triplets []triplet //switch to map from end to []triplet
 	rand_generator *rand.Rand
 	reply_channel chan triplet
 }
@@ -42,11 +47,38 @@ func (sv *server) start(){
 	fmt.Println("starting server", sv.me)
 
 	//TODO: implement this
+	
+	// two threads:
+	// thread one -- computes this server's chain 
+	go sv.construct_triplets()
+	
+	
+	for trip := range(peers[me]){
+		// store triplets recieved, based on end value
+		// check if the list (of triples with this end value) has length >= 3
+		// if so, see if we have a collision
+		// 	start with the triple with longest length, hash until length becomes the next largest length (length is decreasing as you hash)
+		//	if they're different, keep going; if not, drop one of them (since they're the same)
+		//	if you make it to length = 1 and you still have 3 different values, then you've found a collision!
+		
+		// if you have a collision, announce this and send it out
+		// if not, prune the list of triples (so the next time you check is more efficient)
+		
+	}
+	
 }
 
 
-func construct_triplets(){
-
+func (sv *server) construct_triplets(){
+	// randomly select start location from space of possible hashes, start
+	// s = start, length = 0
+	// keep hashing s until s is a distinguished point (less than N^(2/3)) ; length += 1
+	// end = where s is now
+	// create a triple: start, end, length
+	
+	// send this triple to the server with number (end % (num_processes))
+	
+	
 }
 
 
